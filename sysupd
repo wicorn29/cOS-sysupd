@@ -1,0 +1,24 @@
+#!/bin/bash
+
+CONF="/etc/init/update-engine.conf"
+DISABLED="$CONF.disabled"
+
+if [ "$1" == "on" ]; then
+    echo "Enabling and starting update-engine..."
+    [ -f "$DISABLED" ] && sudo mv "$DISABLED" "$CONF"
+    sudo initctl reload-configuration
+    sudo start update-engine
+    sudo restart dlcservice
+    echo "Update-engine is active and services restarted."
+
+elif [ "$1" == "off" ]; then
+    echo "Stopping and disabling update-engine..."
+    sudo stop update-engine 2>/dev/null
+    [ -f "$CONF" ] && sudo mv "$CONF" "$DISABLED"
+    sudo initctl reload-configuration
+    echo "Update-engine is disabled."
+
+else
+    echo "Usage: sysupd {on|off}"
+    exit 1
+fi
